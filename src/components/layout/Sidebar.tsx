@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { 
   LineChart, 
@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 const menuItems = [
   {
@@ -58,6 +59,8 @@ const Sidebar = ({ isMobile = false }: SidebarProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     // Close mobile sidebar when route changes
@@ -75,6 +78,23 @@ const Sidebar = ({ isMobile = false }: SidebarProps) => {
     setMobileOpen(!mobileOpen);
   };
 
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    if (isMobile) {
+      setMobileOpen(false);
+    }
+    
+    // Show toast for current section
+    const currentItem = menuItems.find(item => item.path === path);
+    if (currentItem) {
+      toast({
+        title: `Переход в раздел: ${currentItem.name}`,
+        description: "Загрузка данных...",
+        duration: 2000,
+      });
+    }
+  };
+
   const sidebarWidth = collapsed ? 'w-16' : 'w-64';
   const mobileSidebarClass = mobileOpen ? 'translate-x-0' : '-translate-x-full';
 
@@ -82,10 +102,11 @@ const Sidebar = ({ isMobile = false }: SidebarProps) => {
     <ul className="space-y-2 mt-6">
       {menuItems.map((item) => (
         <li key={item.path}>
-          <Link
-            to={item.path}
+          <Button
+            variant="ghost"
+            onClick={() => handleNavigation(item.path)}
             className={cn(
-              "flex items-center px-4 py-3 text-sm rounded-lg transition-colors",
+              "w-full flex items-center px-4 py-3 text-sm rounded-lg transition-colors justify-start",
               isActive(item.path)
                 ? "bg-primary/10 text-primary font-medium"
                 : "text-gray-600 hover:bg-gray-100"
@@ -102,7 +123,7 @@ const Sidebar = ({ isMobile = false }: SidebarProps) => {
                 {item.name}
               </motion.span>
             )}
-          </Link>
+          </Button>
         </li>
       ))}
     </ul>
@@ -120,9 +141,11 @@ const Sidebar = ({ isMobile = false }: SidebarProps) => {
           <Menu className="h-5 w-5" />
         </Button>
         <motion.div
+          initial={{ x: "-100%" }}
+          animate={{ x: mobileOpen ? 0 : "-100%" }}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
           className={cn(
-            "fixed inset-y-0 left-0 z-30 w-64 bg-white border-r p-4 shadow-lg transform transition-transform duration-300 ease-in-out",
-            mobileSidebarClass
+            "fixed inset-y-0 left-0 z-30 w-64 bg-white border-r p-4 shadow-lg"
           )}
         >
           <div className="flex items-center justify-between mb-6">
@@ -135,6 +158,13 @@ const Sidebar = ({ isMobile = false }: SidebarProps) => {
           </div>
           {renderNavItems()}
         </motion.div>
+        {mobileOpen && (
+          <div 
+            className="fixed inset-0 bg-black/20 z-20"
+            onClick={toggleMobileSidebar}
+            aria-hidden="true"
+          />
+        )}
       </>
     );
   }
@@ -158,7 +188,7 @@ const Sidebar = ({ isMobile = false }: SidebarProps) => {
             <span className="text-xl font-bold text-primary">KaspiNinja</span>
           </motion.div>
         )}
-        <Button variant="ghost" size="icon" onClick={toggleSidebar}>
+        <Button variant="ghost" size="icon" onClick={toggleSidebar} className="transition-transform">
           {collapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
         </Button>
       </div>

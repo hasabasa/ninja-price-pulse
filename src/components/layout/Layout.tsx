@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Sidebar from "./Sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Toaster } from "@/components/ui/sonner";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -22,6 +23,7 @@ const Layout = ({ children }: LayoutProps) => {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
+      <Toaster position="top-right" />
       <AnimatePresence>
         {loading ? (
           <motion.div
