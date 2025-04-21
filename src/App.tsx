@@ -1,10 +1,17 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Layout from "./components/layout/Layout";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import PriceBot from "./pages/PriceBot";
+import Sales from "./pages/Sales";
+import UnitEconomics from "./pages/UnitEconomics";
+import CRM from "./pages/CRM";
+import NicheSearch from "./pages/NicheSearch";
 
 const queryClient = new QueryClient();
 
@@ -15,8 +22,12 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="/" element={<Layout><Index /></Layout>} />
+          <Route path="/price-bot" element={<Layout><PriceBot /></Layout>} />
+          <Route path="/sales" element={<Layout><Sales /></Layout>} />
+          <Route path="/unit-economics" element={<Layout><UnitEconomics /></Layout>} />
+          <Route path="/crm" element={<Layout><CRM /></Layout>} />
+          <Route path="/niche-search" element={<Layout><NicheSearch /></Layout>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
