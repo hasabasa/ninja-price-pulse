@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar } from "@/components/ui/avatar";
-import { MessageSquare, Send, WhatsappIcon } from "lucide-react";
+import { MessageSquare, Send, MessageCircle } from "lucide-react";
 
 interface Message {
   id: number;
@@ -132,7 +132,7 @@ export const WhatsappChat = () => {
                 >
                   <div className="flex items-center gap-3">
                     <Avatar>
-                      <WhatsappIcon className="h-6 w-6 text-green-500" />
+                      <MessageCircle className="h-6 w-6 text-green-500" />
                     </Avatar>
                     <div className="flex-1">
                       <div className="flex justify-between">
@@ -166,7 +166,7 @@ export const WhatsappChat = () => {
           {selectedContact ? (
             <div className="flex items-center gap-3">
               <Avatar>
-                <WhatsappIcon className="h-6 w-6 text-green-500" />
+                <MessageCircle className="h-6 w-6 text-green-500" />
               </Avatar>
               <div>
                 <CardTitle>{selectedContact.name}</CardTitle>
