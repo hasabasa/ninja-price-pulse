@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -26,6 +25,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
+
+import { WhatsappChat } from "@/components/crm/WhatsappChat";
 
 const CRM = () => {
   const [tasks, setTasks] = useState(mockTasks);
@@ -336,9 +337,11 @@ const CRM = () => {
           <TabsList>
             <TabsTrigger value="tasks">Задачи</TabsTrigger>
             <TabsTrigger value="timeline">Таймлайн</TabsTrigger>
+            <TabsTrigger value="whatsapp">WhatsApp</TabsTrigger>
             <TabsTrigger value="integration">Интеграция</TabsTrigger>
             <TabsTrigger value="calls">История звонков</TabsTrigger>
           </TabsList>
+          
           
           <TabsContent value="tasks">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -487,6 +490,7 @@ const CRM = () => {
             </Card>
           </TabsContent>
           
+          
           <TabsContent value="timeline">
             <Card>
               <CardHeader>
@@ -526,7 +530,12 @@ const CRM = () => {
               </CardContent>
             </Card>
           </TabsContent>
-
+          
+          <TabsContent value="whatsapp">
+            <WhatsappChat />
+          </TabsContent>
+          
+          
           <TabsContent value="integration">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card className="lg:col-span-2">
@@ -764,6 +773,7 @@ const CRM = () => {
             </div>
           </TabsContent>
 
+          
           <TabsContent value="calls">
             <Card>
               <CardHeader>
@@ -796,20 +806,4 @@ const CRM = () => {
                             <td className="p-4">{call.phone}</td>
                             <td className="p-4">{formatDateTime(call.date)}</td>
                             <td className="p-4">{call.duration}</td>
-                            <td className="p-4">{getCallStatusBadge(call.status)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </motion.div>
-    </div>
-  );
-};
-
-export default CRM;
+                            <td
