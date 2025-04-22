@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +7,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calculator } from "lucide-react";
 import { categoryOptions, paymentTypes, deliveryLocations, goldCommissionRates, redKreditCommissionRates, deliveryRates } from "@/data/mockData";
 
+const taxTypes = [
+  { value: "simplified", label: "УСН (3%)" },
+  { value: "retail", label: "Розничный налог (4%)" },
+  { value: "vat", label: "НДС (12%)" }
+];
+
 const UnitEconomics = () => {
   const [formData, setFormData] = useState({
     cost: 100000,
@@ -15,13 +20,15 @@ const UnitEconomics = () => {
     category: "Телефоны",
     weight: 1,
     deliveryLocation: "city",
-    paymentType: "gold"
+    paymentType: "gold",
+    taxType: "simplified"
   });
 
   const [result, setResult] = useState({
     commission: 0,
     commissionPercent: 0,
     delivery: 0,
+    tax: 0,
     profit: 0,
     profitPercent: 0
   });
@@ -64,19 +71,46 @@ const UnitEconomics = () => {
     return location.over50kg;
   };
 
+  // Calculate tax
+  const calculateTax = (totalRevenue: number, totalExpenses: number) => {
+    const { taxType } = formData;
+    
+    switch (taxType) {
+      case "simplified":
+        // 3% от общего оборота
+        return totalRevenue * 0.03;
+      case "retail":
+        // 4% от общего оборота
+        return totalRevenue * 0.04;
+      case "vat":
+        // 12% от чистой прибыли (после вычета всех расходов)
+        const netIncome = totalRevenue - totalExpenses;
+        return netIncome > 0 ? netIncome * 0.12 : 0;
+      default:
+        return 0;
+    }
+  };
+
   // Calculate profit
   useEffect(() => {
     const { cost, sellingPrice } = formData;
     const { commissionPercent, commissionAmount } = calculateCommission();
     const deliveryCost = calculateDelivery();
     
-    const profit = (sellingPrice as number) - (cost as number) - commissionAmount - deliveryCost;
-    const profitPercent = ((profit / (sellingPrice as number)) * 100).toFixed(2);
+    // Для УСН и розничного налога - считаем от общего оборота
+    const totalRevenue = sellingPrice as number;
+    const totalExpenses = (cost as number) + commissionAmount + deliveryCost;
+    
+    const taxAmount = calculateTax(totalRevenue, totalExpenses);
+    
+    const profit = totalRevenue - totalExpenses - taxAmount;
+    const profitPercent = ((profit / totalRevenue) * 100).toFixed(2);
     
     setResult({
       commission: commissionAmount,
       commissionPercent,
       delivery: deliveryCost,
+      tax: taxAmount,
       profit,
       profitPercent: parseFloat(profitPercent)
     });
@@ -195,6 +229,25 @@ const UnitEconomics = () => {
                         </SelectContent>
                       </Select>
                     </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="taxType">Система налогообложения</Label>
+                      <Select 
+                        value={formData.taxType}
+                        onValueChange={(value) => handleInputChange("taxType", value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Выберите тип налогообложения" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {taxTypes.map(option => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -224,6 +277,9 @@ const UnitEconomics = () => {
                       
                       <div className="text-sm text-gray-500">Стоимость доставки:</div>
                       <div className="text-sm font-medium text-right">{result.delivery.toLocaleString()} ₸</div>
+
+                      <div className="text-sm text-gray-500">Налог:</div>
+                      <div className="text-sm font-medium text-right">{result.tax.toLocaleString()} ₸</div>
                     </div>
                   </div>
                   
