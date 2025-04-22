@@ -745,7 +745,7 @@ const CRM = () => {
                               <Label htmlFor="retryCount">Количество повторных попыток</Label>
                               <Select 
                                 value={voipSettings.retryCount.toString()} 
-                                onValueChange={(value) => setVoipSettings({...voipSettings, retryCount: parseInt(value)}))}
+                                onValueChange={(value) => setVoipSettings({...voipSettings, retryCount: parseInt(value, 10)})}
                               >
                                 <SelectTrigger id="retryCount">
                                   <SelectValue placeholder="Выберите количество" />
@@ -807,4 +807,4 @@ const CRM = () => {
                             <td className="p-4">{call.customer}</td>
                             <td className="p-4">{call.phone}</td>
                             <td className="p-4">{formatDateTime(call.date)}</td>
-                            <td className="p-4">{call.
+                            <td className="p-4">{call
