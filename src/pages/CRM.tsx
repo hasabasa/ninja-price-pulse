@@ -1,17 +1,31 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { mockTasks } from "@/data/mockData";
-import { Check, Phone, MessageSquare, Filter, Plus } from "lucide-react";
+import { 
+  Check, 
+  Phone, 
+  MessageSquare, 
+  Filter, 
+  Plus, 
+  History, 
+  Mail, 
+  LinkIcon as Link,
+  Clock,
+  Calendar
+} from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { Switch } from "@/components/ui/switch";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Separator } from "@/components/ui/separator";
 
 const CRM = () => {
   const [tasks, setTasks] = useState(mockTasks);
@@ -24,13 +38,47 @@ const CRM = () => {
     deadline: new Date().toISOString().slice(0, 16)
   });
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState("tasks");
+  const [integrationTab, setIntegrationTab] = useState("crm");
   const { toast } = useToast();
+  
+  // CRM Integration state
+  const [crmSettings, setCrmSettings] = useState({
+    crmType: "bitrix24",
+    webhookUrl: "",
+    responsibleUser: "",
+  });
+  
+  // VoIP settings state
+  const [voipSettings, setVoipSettings] = useState({
+    provider: "asterisk",
+    sipAccount: "",
+    username: "",
+    password: "",
+    server: "",
+    callAfterOrder: true,
+    workHoursOnly: true,
+    workHoursStart: "09:00",
+    workHoursEnd: "18:00",
+    retryCount: 2
+  });
+  
+  // Call history
+  const [callHistory] = useState([
+    { id: 1, customer: "Айдар Сериков", phone: "+7 (701) 555-1234", date: "2025-04-21T10:30:00", duration: "1:24", status: "completed" },
+    { id: 2, customer: "Алия Нурланова", phone: "+7 (707) 222-4567", date: "2025-04-21T11:45:00", duration: "0:45", status: "completed" },
+    { id: 3, customer: "Тимур Ахметов", phone: "+7 (777) 888-9012", date: "2025-04-21T13:20:00", duration: "0:00", status: "missed" },
+    { id: 4, customer: "Галия Бекетова", phone: "+7 (702) 333-5678", date: "2025-04-20T15:10:00", duration: "2:12", status: "completed" },
+    { id: 5, customer: "Арман Сатыбалдиев", phone: "+7 (705) 777-3456", date: "2025-04-20T16:30:00", duration: "0:00", status: "no-answer" },
+  ]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed": return "bg-green-100 text-green-800 hover:bg-green-200";
       case "pending": return "bg-blue-100 text-blue-800 hover:bg-blue-200";
       case "overdue": return "bg-red-100 text-red-800 hover:bg-red-200";
+      case "missed": return "bg-amber-100 text-amber-800 hover:bg-amber-200";
+      case "no-answer": return "bg-orange-100 text-orange-800 hover:bg-orange-200";
       default: return "";
     }
   };
@@ -40,6 +88,8 @@ const CRM = () => {
       case "completed": return "Выполнено";
       case "pending": return "В ожидании";
       case "overdue": return "Просрочено";
+      case "missed": return "Пропущен";
+      case "no-answer": return "Нет ответа";
       default: return status;
     }
   };
@@ -113,6 +163,59 @@ const CRM = () => {
     toast({
       title: "Сообщение",
       description: `Отправка сообщения на номер ${phone}`,
+    });
+  };
+  
+  const handleSaveCrmSettings = () => {
+    toast({
+      title: "Настройки сохранены",
+      description: `Интеграция с ${getCrmName(crmSettings.crmType)} настроена успешно`,
+    });
+  };
+  
+  const handleSaveVoipSettings = () => {
+    toast({
+      title: "Настройки VoIP сохранены",
+      description: `Настройки ${voipSettings.provider} сохранены успешно`,
+    });
+  };
+  
+  const handleExportCallHistory = () => {
+    toast({
+      title: "Экспорт запущен",
+      description: "История звонков экспортируется в CSV файл",
+    });
+  };
+  
+  const getCrmName = (crmType: string) => {
+    switch (crmType) {
+      case "bitrix24": return "Bitrix24";
+      case "amocrm": return "amoCRM";
+      case "pipedrive": return "Pipedrive";
+      default: return crmType;
+    }
+  };
+  
+  const getCallStatusBadge = (status: string) => {
+    switch (status) {
+      case "completed": 
+        return <Badge variant="outline" className="bg-green-100 text-green-800">Завершен</Badge>;
+      case "missed": 
+        return <Badge variant="outline" className="bg-amber-100 text-amber-800">Пропущен</Badge>;
+      case "no-answer": 
+        return <Badge variant="outline" className="bg-orange-100 text-orange-800">Нет ответа</Badge>;
+      default: 
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+  
+  const formatDateTime = (dateString: string) => {
+    return new Date(dateString).toLocaleString('ru-RU', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
   };
 
@@ -229,10 +332,12 @@ const CRM = () => {
           </div>
         </div>
         
-        <Tabs defaultValue="tasks" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList>
             <TabsTrigger value="tasks">Задачи</TabsTrigger>
             <TabsTrigger value="timeline">Таймлайн</TabsTrigger>
+            <TabsTrigger value="integration">Интеграция</TabsTrigger>
+            <TabsTrigger value="calls">История звонков</TabsTrigger>
           </TabsList>
           
           <TabsContent value="tasks">
@@ -417,6 +522,286 @@ const CRM = () => {
                       </motion.div>
                     </div>
                   ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="integration">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="lg:col-span-2">
+                <CardHeader>
+                  <CardTitle>Интеграция с CRM-системами и автоматические звонки</CardTitle>
+                  <CardDescription>
+                    Настройка интеграции с внешними CRM-системами и параметры автозвонков
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Tabs value={integrationTab} onValueChange={setIntegrationTab} className="w-full">
+                    <TabsList className="mb-4">
+                      <TabsTrigger value="crm">CRM-системы</TabsTrigger>
+                      <TabsTrigger value="voip">Автоматические звонки</TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="crm">
+                      <div className="space-y-6">
+                        <div className="space-y-2">
+                          <Label>Выберите CRM-систему</Label>
+                          <RadioGroup 
+                            value={crmSettings.crmType}
+                            onValueChange={(value) => setCrmSettings({...crmSettings, crmType: value})}
+                            className="flex flex-col space-y-1"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="bitrix24" id="bitrix24" />
+                              <Label htmlFor="bitrix24" className="flex items-center">
+                                <span className="inline-block w-6 h-6 mr-2 bg-blue-500 rounded flex items-center justify-center text-white text-xs font-bold">B24</span>
+                                Bitrix24
+                              </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="amocrm" id="amocrm" />
+                              <Label htmlFor="amocrm" className="flex items-center">
+                                <span className="inline-block w-6 h-6 mr-2 bg-green-500 rounded flex items-center justify-center text-white text-xs font-bold">amo</span>
+                                amoCRM
+                              </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="pipedrive" id="pipedrive" />
+                              <Label htmlFor="pipedrive" className="flex items-center">
+                                <span className="inline-block w-6 h-6 mr-2 bg-purple-500 rounded flex items-center justify-center text-white text-xs font-bold">PD</span>
+                                Pipedrive
+                              </Label>
+                            </div>
+                          </RadioGroup>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="webhookUrl">Webhook URL</Label>
+                            <Input 
+                              id="webhookUrl" 
+                              placeholder="https://your-crm.com/api/webhook"
+                              value={crmSettings.webhookUrl}
+                              onChange={(e) => setCrmSettings({...crmSettings, webhookUrl: e.target.value})}
+                            />
+                            <p className="text-sm text-gray-500">URL вебхука для отправки данных в CRM-систему</p>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label htmlFor="responsible">Ответственный сотрудник</Label>
+                            <Input 
+                              id="responsible" 
+                              placeholder="ID или email ответственного"
+                              value={crmSettings.responsibleUser}
+                              onChange={(e) => setCrmSettings({...crmSettings, responsibleUser: e.target.value})}
+                            />
+                            <p className="text-sm text-gray-500">ID или email сотрудника в CRM-системе</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex justify-end">
+                          <Button onClick={handleSaveCrmSettings}>
+                            Сохранить настройки CRM
+                          </Button>
+                        </div>
+                      </div>
+                    </TabsContent>
+                    
+                    <TabsContent value="voip">
+                      <div className="space-y-6">
+                        <div className="space-y-2">
+                          <Label>Выберите VoIP-провайдера</Label>
+                          <RadioGroup 
+                            value={voipSettings.provider}
+                            onValueChange={(value) => setVoipSettings({...voipSettings, provider: value})}
+                            className="flex flex-col space-y-1"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="asterisk" id="asterisk" />
+                              <Label htmlFor="asterisk">Asterisk</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="freepbx" id="freepbx" />
+                              <Label htmlFor="freepbx">FreePBX</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="3cx" id="3cx" />
+                              <Label htmlFor="3cx">3CX</Label>
+                            </div>
+                          </RadioGroup>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="sipAccount">SIP-аккаунт</Label>
+                              <Input 
+                                id="sipAccount" 
+                                placeholder="sip:username@domain.com"
+                                value={voipSettings.sipAccount}
+                                onChange={(e) => setVoipSettings({...voipSettings, sipAccount: e.target.value})}
+                              />
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <Label htmlFor="sipServer">SIP-сервер</Label>
+                              <Input 
+                                id="sipServer" 
+                                placeholder="sip.example.com"
+                                value={voipSettings.server}
+                                onChange={(e) => setVoipSettings({...voipSettings, server: e.target.value})}
+                              />
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <Label htmlFor="sipUsername">Имя пользователя</Label>
+                              <Input 
+                                id="sipUsername" 
+                                placeholder="username"
+                                value={voipSettings.username}
+                                onChange={(e) => setVoipSettings({...voipSettings, username: e.target.value})}
+                              />
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <Label htmlFor="sipPassword">Пароль</Label>
+                              <Input 
+                                id="sipPassword" 
+                                type="password"
+                                placeholder="••••••••"
+                                value={voipSettings.password}
+                                onChange={(e) => setVoipSettings({...voipSettings, password: e.target.value})}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <Separator />
+                        
+                        <div>
+                          <h3 className="font-medium mb-4">Параметры звонков</h3>
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <Label htmlFor="callAfterOrder" className="font-medium">Звонить сразу после заказа</Label>
+                                <p className="text-sm text-gray-500">Автоматический звонок клиенту после создания заказа</p>
+                              </div>
+                              <Switch 
+                                id="callAfterOrder"
+                                checked={voipSettings.callAfterOrder}
+                                onCheckedChange={(checked) => setVoipSettings({...voipSettings, callAfterOrder: checked})}
+                              />
+                            </div>
+                            
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <Label htmlFor="workHoursOnly" className="font-medium">Звонки только в рабочее время</Label>
+                                <p className="text-sm text-gray-500">Звонки будут совершаться только в указанное рабочее время</p>
+                              </div>
+                              <Switch 
+                                id="workHoursOnly"
+                                checked={voipSettings.workHoursOnly}
+                                onCheckedChange={(checked) => setVoipSettings({...voipSettings, workHoursOnly: checked})}
+                              />
+                            </div>
+                            
+                            {voipSettings.workHoursOnly && (
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <Label htmlFor="workHoursStart">Начало рабочего времени</Label>
+                                  <Input 
+                                    id="workHoursStart" 
+                                    type="time"
+                                    value={voipSettings.workHoursStart}
+                                    onChange={(e) => setVoipSettings({...voipSettings, workHoursStart: e.target.value})}
+                                  />
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label htmlFor="workHoursEnd">Конец рабочего времени</Label>
+                                  <Input 
+                                    id="workHoursEnd" 
+                                    type="time"
+                                    value={voipSettings.workHoursEnd}
+                                    onChange={(e) => setVoipSettings({...voipSettings, workHoursEnd: e.target.value})}
+                                  />
+                                </div>
+                              </div>
+                            )}
+                            
+                            <div className="space-y-2">
+                              <Label htmlFor="retryCount">Количество повторных попыток</Label>
+                              <Select 
+                                value={voipSettings.retryCount.toString()} 
+                                onValueChange={(value) => setVoipSettings({...voipSettings, retryCount: parseInt(value)})}
+                              >
+                                <SelectTrigger id="retryCount">
+                                  <SelectValue placeholder="Выберите количество" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="0">Без повторов</SelectItem>
+                                  <SelectItem value="1">1 повтор</SelectItem>
+                                  <SelectItem value="2">2 повтора</SelectItem>
+                                  <SelectItem value="3">3 повтора</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <p className="text-sm text-gray-500">Сколько раз повторять звонок, если нет ответа</p>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex justify-end">
+                          <Button onClick={handleSaveVoipSettings}>
+                            Сохранить настройки звонков
+                          </Button>
+                        </div>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="calls">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span>История звонков</span>
+                  <Button variant="outline" size="sm" onClick={handleExportCallHistory}>
+                    <History className="h-4 w-4 mr-2" />
+                    Экспортировать
+                  </Button>
+                </CardTitle>
+                <CardDescription>История всех автоматических и ручных звонков</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="rounded-md border">
+                  <div className="relative w-full overflow-auto">
+                    <table className="w-full caption-bottom text-sm">
+                      <thead>
+                        <tr className="border-b bg-gray-50">
+                          <th className="h-12 px-4 text-left font-medium text-gray-500">Клиент</th>
+                          <th className="h-12 px-4 text-left font-medium text-gray-500">Телефон</th>
+                          <th className="h-12 px-4 text-left font-medium text-gray-500">Дата и время</th>
+                          <th className="h-12 px-4 text-left font-medium text-gray-500">Длительность</th>
+                          <th className="h-12 px-4 text-left font-medium text-gray-500">Статус</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {callHistory.map((call) => (
+                          <tr key={call.id} className="border-b hover:bg-gray-50">
+                            <td className="p-4">{call.customer}</td>
+                            <td className="p-4">{call.phone}</td>
+                            <td className="p-4">{formatDateTime(call.date)}</td>
+                            <td className="p-4">{call.duration}</td>
+                            <td className="p-4">{getCallStatusBadge(call.status)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </CardContent>
             </Card>
