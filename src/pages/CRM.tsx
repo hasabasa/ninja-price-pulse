@@ -8,10 +8,23 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { mockTasks } from "@/data/mockData";
 import { Check, Phone, MessageSquare, Filter, Plus } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 
 const CRM = () => {
   const [tasks, setTasks] = useState(mockTasks);
   const [filter, setFilter] = useState("all");
+  const [newTask, setNewTask] = useState({
+    type: "call",
+    customer: "",
+    phone: "",
+    task: "",
+    deadline: new Date().toISOString().slice(0, 16)
+  });
+  const [searchTerm, setSearchTerm] = useState("");
+  const { toast } = useToast();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -31,10 +44,77 @@ const CRM = () => {
     }
   };
 
-  const filteredTasks = tasks.filter(task => {
-    if (filter === "all") return true;
-    return task.status === filter;
+  const filteredAndSearchedTasks = tasks.filter(task => {
+    const matchesFilter = filter === "all" || task.status === filter;
+    const matchesSearch = searchTerm === "" || 
+      task.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      task.phone.includes(searchTerm) ||
+      task.task.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesFilter && matchesSearch;
   });
+
+  const handleCreateTask = () => {
+    if (!newTask.customer || !newTask.phone || !newTask.task) {
+      toast({
+        title: "Ошибка",
+        description: "Пожалуйста, заполните все обязательные поля",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const task = {
+      id: tasks.length + 1,
+      type: newTask.type,
+      customer: newTask.customer,
+      phone: newTask.phone,
+      task: newTask.task,
+      status: "pending",
+      deadline: newTask.deadline,
+      createdAt: new Date().toISOString()
+    };
+
+    setTasks([task, ...tasks]);
+    setNewTask({
+      type: "call",
+      customer: "",
+      phone: "",
+      task: "",
+      deadline: new Date().toISOString().slice(0, 16)
+    });
+
+    toast({
+      title: "Задача создана",
+      description: "Новая задача успешно добавлена",
+    });
+  };
+
+  const handleCompleteTask = (id: number) => {
+    setTasks(tasks.map(task => 
+      task.id === id 
+        ? { ...task, status: "completed", completedAt: new Date().toISOString() } 
+        : task
+    ));
+    
+    toast({
+      title: "Задача выполнена",
+      description: "Статус задачи изменен на 'Выполнено'",
+    });
+  };
+
+  const handleCall = (phone: string) => {
+    toast({
+      title: "Звонок инициирован",
+      description: `Вызов на номер ${phone}`,
+    });
+  };
+
+  const handleMessage = (phone: string) => {
+    toast({
+      title: "Сообщение",
+      description: `Отправка сообщения на номер ${phone}`,
+    });
+  };
 
   return (
     <div className="container mx-auto">
@@ -50,17 +130,102 @@ const CRM = () => {
 
         <div className="flex flex-wrap gap-4 items-center justify-between">
           <div className="flex flex-wrap gap-4 items-center">
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Новая задача
-            </Button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Новая задача
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Создать новую задачу</DialogTitle>
+                  <DialogDescription>
+                    Заполните информацию о новой задаче и нажмите "Создать"
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="taskType" className="text-right">
+                      Тип
+                    </Label>
+                    <Select 
+                      value={newTask.type}
+                      onValueChange={(value) => setNewTask({...newTask, type: value})}
+                    >
+                      <SelectTrigger className="col-span-3">
+                        <SelectValue placeholder="Выберите тип задачи" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="call">Звонок</SelectItem>
+                        <SelectItem value="message">Сообщение</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="customer" className="text-right">
+                      Клиент
+                    </Label>
+                    <Input
+                      id="customer"
+                      value={newTask.customer}
+                      onChange={(e) => setNewTask({...newTask, customer: e.target.value})}
+                      className="col-span-3"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="phone" className="text-right">
+                      Телефон
+                    </Label>
+                    <Input
+                      id="phone"
+                      value={newTask.phone}
+                      onChange={(e) => setNewTask({...newTask, phone: e.target.value})}
+                      placeholder="+7 (XXX) XXX-XX-XX"
+                      className="col-span-3"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="task" className="text-right">
+                      Задача
+                    </Label>
+                    <Input
+                      id="task"
+                      value={newTask.task}
+                      onChange={(e) => setNewTask({...newTask, task: e.target.value})}
+                      className="col-span-3"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="deadline" className="text-right">
+                      Срок
+                    </Label>
+                    <Input
+                      id="deadline"
+                      type="datetime-local"
+                      value={newTask.deadline}
+                      onChange={(e) => setNewTask({...newTask, deadline: e.target.value})}
+                      className="col-span-3"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button type="submit" onClick={handleCreateTask}>Создать задачу</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
             <Button variant="outline">
               <Filter className="mr-2 h-4 w-4" />
               Фильтр
             </Button>
           </div>
           <div className="w-full md:w-auto">
-            <Input placeholder="Поиск по задаче или клиенту..." className="w-full" />
+            <Input 
+              placeholder="Поиск по задаче или клиенту..." 
+              className="w-full" 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
         </div>
         
@@ -140,7 +305,7 @@ const CRM = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {filteredTasks.map((task) => (
+                  {filteredAndSearchedTasks.map((task) => (
                     <motion.div
                       key={task.id}
                       initial={{ opacity: 0 }}
@@ -173,17 +338,29 @@ const CRM = () => {
                         <div className="flex flex-wrap items-center gap-2">
                           {task.status !== 'completed' && (
                             <>
-                              <Button variant="outline" size="sm">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => handleCompleteTask(task.id)}
+                              >
                                 <Check className="h-4 w-4 mr-1" />
                                 Выполнено
                               </Button>
                               {task.type === 'call' ? (
-                                <Button variant="outline" size="sm">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  onClick={() => handleCall(task.phone)}
+                                >
                                   <Phone className="h-4 w-4 mr-1" />
                                   Позвонить
                                 </Button>
                               ) : (
-                                <Button variant="outline" size="sm">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  onClick={() => handleMessage(task.phone)}
+                                >
                                   <MessageSquare className="h-4 w-4 mr-1" />
                                   Написать
                                 </Button>
@@ -195,7 +372,7 @@ const CRM = () => {
                     </motion.div>
                   ))}
                   
-                  {filteredTasks.length === 0 && (
+                  {filteredAndSearchedTasks.length === 0 && (
                     <div className="text-center py-8 text-gray-500">
                       Задач с выбранным фильтром не найдено
                     </div>
