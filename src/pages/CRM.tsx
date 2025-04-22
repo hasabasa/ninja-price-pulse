@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -342,7 +343,7 @@ const CRM = () => {
             <TabsTrigger value="calls">История звонков</TabsTrigger>
           </TabsList>
           
-          
+          {/* Tasks Tab */}
           <TabsContent value="tasks">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <Card className="bg-gray-50">
@@ -490,7 +491,7 @@ const CRM = () => {
             </Card>
           </TabsContent>
           
-          
+          {/* Timeline Tab */}
           <TabsContent value="timeline">
             <Card>
               <CardHeader>
@@ -531,11 +532,12 @@ const CRM = () => {
             </Card>
           </TabsContent>
           
+          {/* WhatsApp Tab */}
           <TabsContent value="whatsapp">
             <WhatsappChat />
           </TabsContent>
           
-          
+          {/* Integration Tab */}
           <TabsContent value="integration">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card className="lg:col-span-2">
@@ -552,7 +554,7 @@ const CRM = () => {
                       <TabsTrigger value="voip">Автоматические звонки</TabsTrigger>
                     </TabsList>
                     
-                    
+                    {/* CRM Tab */}
                     <TabsContent value="crm">
                       <div className="space-y-6">
                         <div className="space-y-2">
@@ -618,7 +620,7 @@ const CRM = () => {
                       </div>
                     </TabsContent>
                     
-                    
+                    {/* VoIP Tab */}
                     <TabsContent value="voip">
                       <div className="space-y-6">
                         <div className="space-y-2">
@@ -775,7 +777,7 @@ const CRM = () => {
             </div>
           </TabsContent>
 
-          
+          {/* Call History Tab */}
           <TabsContent value="calls">
             <Card>
               <CardHeader>
@@ -807,4 +809,21 @@ const CRM = () => {
                             <td className="p-4">{call.customer}</td>
                             <td className="p-4">{call.phone}</td>
                             <td className="p-4">{formatDateTime(call.date)}</td>
-                            <td className="p-
+                            <td className="p-4">{call.duration}</td>
+                            <td className="p-4">{getCallStatusBadge(call.status)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </motion.div>
+    </div>
+  );
+};
+
+export default CRM;
