@@ -12,10 +12,12 @@ import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { mockProducts } from "@/data/mockData";
 import { Bot, ChevronsUpDown, TrendingDown, UserRound } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const PriceBot = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState(mockProducts);
+  const { toast } = useToast();
   
   const filteredProducts = products.filter(product => 
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -26,6 +28,56 @@ const PriceBot = () => {
     setProducts(products.map(product => 
       product.id === productId ? { ...product, active: !product.active } : product
     ));
+  };
+
+  const selectStrategy = (productId: number, strategy: string) => {
+    setProducts(products.map(product => 
+      product.id === productId ? { ...product, strategy } : product
+    ));
+    
+    toast({
+      title: "Стратегия выбрана",
+      description: `Стратегия "${strategy}" успешно выбрана`,
+      duration: 3000,
+    });
+  };
+
+  const updateLimitValue = (productId: number, limitType: string, value: number) => {
+    setProducts(products.map(product => 
+      product.id === productId ? { 
+        ...product, 
+        limits: { 
+          ...product.limits, 
+          [limitType]: Array.isArray(value) ? value[0] : value
+        } 
+      } : product
+    ));
+  };
+
+  const saveSettings = (productId: number) => {
+    toast({
+      title: "Настройки сохранены",
+      description: "Настройки бота успешно сохранены",
+      duration: 3000,
+    });
+  };
+
+  const startAllBots = () => {
+    setProducts(products.map(product => ({ ...product, active: true })));
+    toast({
+      title: "Боты запущены",
+      description: "Все боты были успешно запущены",
+      duration: 3000,
+    });
+  };
+
+  const stopAllBots = () => {
+    setProducts(products.map(product => ({ ...product, active: false })));
+    toast({
+      title: "Боты остановлены",
+      description: "Все боты были успешно остановлены",
+      duration: 3000,
+    });
   };
 
   return (
@@ -49,11 +101,11 @@ const PriceBot = () => {
               className="w-full"
             />
           </div>
-          <Button>
+          <Button onClick={startAllBots}>
             <Bot className="mr-2 h-4 w-4" />
             Запустить все боты
           </Button>
-          <Button variant="outline">
+          <Button variant="outline" onClick={stopAllBots}>
             <Bot className="mr-2 h-4 w-4" />
             Остановить все боты
           </Button>
@@ -177,19 +229,28 @@ const PriceBot = () => {
                         <div className="space-y-2">
                           <h3 className="text-lg font-medium">Выберите стратегию</h3>
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <Card className="cursor-pointer border-primary">
+                            <Card 
+                              className={`cursor-pointer ${product.strategy === 'first' ? 'border-primary' : 'border-border'} hover:border-primary/80 transition-all`}
+                              onClick={() => selectStrategy(product.id, 'first')}
+                            >
                               <CardHeader>
                                 <CardTitle className="text-base">🥇 Стань первым</CardTitle>
                                 <CardDescription>Цена на 1 тг дешевле, чем у ближайшего конкурента</CardDescription>
                               </CardHeader>
                             </Card>
-                            <Card className="cursor-pointer">
+                            <Card 
+                              className={`cursor-pointer ${product.strategy === 'equal' ? 'border-primary' : 'border-border'} hover:border-primary/80 transition-all`}
+                              onClick={() => selectStrategy(product.id, 'equal')}
+                            >
                               <CardHeader>
                                 <CardTitle className="text-base">⚖️ Равная цена</CardTitle>
                                 <CardDescription>Держать цену наравне с выбранным конкурентом</CardDescription>
                               </CardHeader>
                             </Card>
-                            <Card className="cursor-pointer">
+                            <Card 
+                              className={`cursor-pointer ${product.strategy === 'custom' ? 'border-primary' : 'border-border'} hover:border-primary/80 transition-all`}
+                              onClick={() => selectStrategy(product.id, 'custom')}
+                            >
                               <CardHeader>
                                 <CardTitle className="text-base">💰 Своя стратегия</CardTitle>
                                 <CardDescription>Настроить пользовательское правило</CardDescription>
@@ -201,7 +262,7 @@ const PriceBot = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div className="space-y-2">
                             <h3 className="text-lg font-medium">Наблюдать за продавцом</h3>
-                            <Select defaultValue="101">
+                            <Select defaultValue={product.watchCompetitor?.toString() || product.competitors[0]?.id.toString()}>
                               <SelectTrigger>
                                 <SelectValue placeholder="Выберите продавца..." />
                               </SelectTrigger>
@@ -217,7 +278,7 @@ const PriceBot = () => {
 
                           <div className="space-y-2">
                             <h3 className="text-lg font-medium">Частота обновления</h3>
-                            <Select defaultValue="5">
+                            <Select defaultValue={product.updateFrequency?.toString() || "5"}>
                               <SelectTrigger>
                                 <SelectValue placeholder="Выберите частоту..." />
                               </SelectTrigger>
@@ -244,17 +305,33 @@ const PriceBot = () => {
                                 <div className="space-y-2">
                                   <div className="flex justify-between">
                                     <Label>Минимальная цена</Label>
-                                    <span className="text-sm text-gray-500">{product.cost + 10000} ₸</span>
+                                    <span className="text-sm text-gray-500">
+                                      {(product.limits?.minPrice || product.cost + 10000).toLocaleString()} ₸
+                                    </span>
                                   </div>
-                                  <Slider defaultValue={[product.cost + 10000]} max={product.cost * 2} step={1000} />
+                                  <Slider 
+                                    value={[product.limits?.minPrice || product.cost + 10000]} 
+                                    min={product.cost} 
+                                    max={product.cost * 2} 
+                                    step={1000}
+                                    onValueChange={(value) => updateLimitValue(product.id, 'minPrice', value[0])}
+                                  />
                                 </div>
                                 
                                 <div className="space-y-2">
                                   <div className="flex justify-between">
                                     <Label>Минимальная прибыль</Label>
-                                    <span className="text-sm text-gray-500">10,000 ₸</span>
+                                    <span className="text-sm text-gray-500">
+                                      {(product.limits?.minProfit || 10000).toLocaleString()} ₸
+                                    </span>
                                   </div>
-                                  <Slider defaultValue={[10000]} max={50000} step={1000} />
+                                  <Slider 
+                                    value={[product.limits?.minProfit || 10000]} 
+                                    min={0} 
+                                    max={50000} 
+                                    step={1000}
+                                    onValueChange={(value) => updateLimitValue(product.id, 'minProfit', value[0])}
+                                  />
                                 </div>
                               </div>
                               
@@ -262,17 +339,33 @@ const PriceBot = () => {
                                 <div className="space-y-2">
                                   <div className="flex justify-between">
                                     <Label>Максимальная цена</Label>
-                                    <span className="text-sm text-gray-500">{product.cost * 1.5} ₸</span>
+                                    <span className="text-sm text-gray-500">
+                                      {(product.limits?.maxPrice || product.cost * 1.5).toLocaleString()} ₸
+                                    </span>
                                   </div>
-                                  <Slider defaultValue={[product.cost * 1.5]} max={product.cost * 2} step={1000} />
+                                  <Slider 
+                                    value={[product.limits?.maxPrice || product.cost * 1.5]} 
+                                    min={product.cost}
+                                    max={product.cost * 2} 
+                                    step={1000}
+                                    onValueChange={(value) => updateLimitValue(product.id, 'maxPrice', value[0])}
+                                  />
                                 </div>
                                 
                                 <div className="space-y-2">
                                   <div className="flex justify-between">
                                     <Label>Шаг изменения</Label>
-                                    <span className="text-sm text-gray-500">100 ₸</span>
+                                    <span className="text-sm text-gray-500">
+                                      {(product.limits?.priceStep || 100).toLocaleString()} ₸
+                                    </span>
                                   </div>
-                                  <Slider defaultValue={[100]} min={1} max={10000} step={100} />
+                                  <Slider 
+                                    value={[product.limits?.priceStep || 100]} 
+                                    min={1} 
+                                    max={10000} 
+                                    step={100}
+                                    onValueChange={(value) => updateLimitValue(product.id, 'priceStep', value[0])}
+                                  />
                                 </div>
                               </div>
                             </div>
@@ -280,7 +373,7 @@ const PriceBot = () => {
                           
                           <div className="pt-4 flex justify-end gap-2">
                             <Button variant="outline">Отменить</Button>
-                            <Button>Сохранить настройки</Button>
+                            <Button onClick={() => saveSettings(product.id)}>Сохранить настройки</Button>
                           </div>
                         </div>
                       </div>
