@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
@@ -103,22 +102,21 @@ const Sidebar = ({ isMobile = false }: SidebarProps) => {
       {menuItems.map((item) => (
         <li key={item.path}>
           <Button
-            variant="ghost"
+            variant={isActive(item.path) ? "secondary" : "ghost"}
             onClick={() => handleNavigation(item.path)}
             className={cn(
-              "w-full flex items-center px-4 py-3 text-sm rounded-lg transition-colors justify-start",
+              "w-full flex items-center px-4 py-3 text-sm rounded-lg transition-colors justify-start gap-3",
               isActive(item.path)
                 ? "bg-primary/10 text-primary font-medium"
-                : "text-gray-600 hover:bg-gray-100"
+                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
             )}
           >
-            <span className="flex-shrink-0">{item.icon}</span>
+            {item.icon}
             {!collapsed && (
               <motion.span
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="ml-3"
               >
                 {item.name}
               </motion.span>
