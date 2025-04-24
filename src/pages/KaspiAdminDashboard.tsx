@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -7,8 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { AlertCircle, Package, ShoppingCart, BarChart2, Settings, Upload, Download } from "lucide-react";
+import { AlertCircle, Package, ShoppingCart, BarChart2, Settings, Upload, Download, Loader2, Clock } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 // Имитация данных товаров Kaspi
 const mockProducts = [
@@ -25,6 +31,14 @@ const mockOrders = [
   { id: "K-12347", date: "2025-04-18", customer: "Максим Петров", items: 2, total: 589980, status: "Доставлен" },
 ];
 
+// Схема для валидации настроек синхронизации
+const syncSettingsSchema = z.object({
+  apiKey: z.string().min(5, "API ключ должен содержать минимум 5 символов"),
+  merchantId: z.string().min(3, "ID продавца обязателен"),
+  syncInterval: z.number().min(5, "Минимальный интервал 5 минут").max(1440, "Максимальный интервал 24 часа (1440 минут)"),
+  autoSync: z.boolean(),
+});
+
 const KaspiAdminDashboard = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -33,7 +47,22 @@ const KaspiAdminDashboard = () => {
   const [newProductName, setNewProductName] = useState("");
   const [newProductPrice, setNewProductPrice] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
+  const [autoSyncEnabled, setAutoSyncEnabled] = useState(false);
+  const syncIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
+
+  // Форма для настроек синхронизации с Каспи
+  const syncForm = useForm<z.infer<typeof syncSettingsSchema>>({
+    resolver: zodResolver(syncSettingsSchema),
+    defaultValues: {
+      apiKey: localStorage.getItem("kaspi_api_key") || "",
+      merchantId: localStorage.getItem("kaspi_merchant_id") || "",
+      syncInterval: Number(localStorage.getItem("kaspi_sync_interval")) || 30,
+      autoSync: localStorage.getItem("kaspi_auto_sync") === "true",
+    },
+  });
 
   useEffect(() => {
     // Проверка авторизации
@@ -47,7 +76,58 @@ const KaspiAdminDashboard = () => {
     }
     
     setIsAuthenticated(true);
+    
+    // Загрузка параметров синхронизации из localStorage
+    const autoSync = localStorage.getItem("kaspi_auto_sync") === "true";
+    setAutoSyncEnabled(autoSync);
+    
+    // Загрузка времени последней синхронизации
+    const lastSync = localStorage.getItem("kaspi_last_sync_time");
+    if (lastSync) {
+      setLastSyncTime(lastSync);
+    }
+    
+    // Запуск автоматической синхронизации если включена
+    if (autoSync) {
+      startAutoSync();
+    }
+    
+    // Очистка интервала при размонтировании компонента
+    return () => {
+      if (syncIntervalRef.current) {
+        clearInterval(syncIntervalRef.current);
+      }
+    };
   }, [navigate]);
+
+  // Функция запуска автоматической синхронизации
+  const startAutoSync = () => {
+    // Очищаем существующий интервал если есть
+    if (syncIntervalRef.current) {
+      clearInterval(syncIntervalRef.current);
+    }
+    
+    // Получаем интервал синхронизации из localStorage или используем значение по умолчанию (30 минут)
+    const syncInterval = Number(localStorage.getItem("kaspi_sync_interval")) || 30;
+    
+    // Устанавливаем новый интервал (конвертируем минуты в миллисекунды)
+    syncIntervalRef.current = setInterval(() => {
+      handleSyncWithKaspi();
+    }, syncInterval * 60 * 1000);
+    
+    toast.info("Автоматическая синхронизация активирована", {
+      description: `Данные будут синхронизироваться каждые ${syncInterval} минут.`,
+    });
+  };
+
+  // Функция остановки автоматической синхронизации
+  const stopAutoSync = () => {
+    if (syncIntervalRef.current) {
+      clearInterval(syncIntervalRef.current);
+      syncIntervalRef.current = null;
+    }
+    toast.info("Автоматическая синхронизация остановлена");
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("kaspi_admin_authenticated");
@@ -82,13 +162,33 @@ const KaspiAdminDashboard = () => {
     }, 1000);
   };
 
+  // Функция синхронизации с Каспи
   const handleSyncWithKaspi = () => {
+    setIsSyncing(true);
     toast.info("Синхронизация с Каспи", {
       description: "Начата синхронизация данных с Каспи магазином...",
     });
 
     // Имитация процесса синхронизации
     setTimeout(() => {
+      // Обновляем товары и заказы (в реальном приложении здесь будет запрос к API Каспи)
+      const newOrder = { 
+        id: `K-${12340 + orders.length + 1}`, 
+        date: new Date().toISOString().split('T')[0], 
+        customer: "Новый Клиент", 
+        items: Math.floor(Math.random() * 3) + 1, 
+        total: Math.floor(Math.random() * 500000) + 100000, 
+        status: "В обработке" 
+      };
+      
+      setOrders([newOrder, ...orders]);
+      
+      // Обновляем время последней синхронизации
+      const syncTime = new Date().toLocaleString('ru-RU');
+      setLastSyncTime(syncTime);
+      localStorage.setItem("kaspi_last_sync_time", syncTime);
+      
+      setIsSyncing(false);
       toast.success("Синхронизация завершена", {
         description: "Данные успешно синхронизированы с Каспи магазином.",
       });
@@ -102,6 +202,29 @@ const KaspiAdminDashboard = () => {
     
     toast.success("Статус заказа обновлен", {
       description: `Заказ ${orderId} теперь имеет статус "${newStatus}"`,
+    });
+  };
+
+  // Обработчик сохранения настроек синхронизации
+  const onSyncSettingsSave = (values: z.infer<typeof syncSettingsSchema>) => {
+    // Сохраняем настройки в localStorage
+    localStorage.setItem("kaspi_api_key", values.apiKey);
+    localStorage.setItem("kaspi_merchant_id", values.merchantId);
+    localStorage.setItem("kaspi_sync_interval", values.syncInterval.toString());
+    localStorage.setItem("kaspi_auto_sync", values.autoSync.toString());
+    
+    // Обновляем состояние автосинхронизации
+    setAutoSyncEnabled(values.autoSync);
+    
+    // Запускаем или останавливаем автосинхронизацию
+    if (values.autoSync) {
+      startAutoSync();
+    } else {
+      stopAutoSync();
+    }
+    
+    toast.success("Настройки синхронизации сохранены", {
+      description: "Изменения успешно применены.",
     });
   };
 
@@ -124,20 +247,52 @@ const KaspiAdminDashboard = () => {
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>Интеграция с Каспи</AlertTitle>
         <AlertDescription>
-          Все модули сайта интегрированы с платформой Каспи для автоматической синхронизации данных.
+          Система настроена на автоматическую синхронизацию данных с платформой Каспи.
+          {lastSyncTime && (
+            <div className="mt-2 text-sm flex items-center gap-1">
+              <Clock className="h-3 w-3" /> 
+              Последняя синхронизация: <span className="font-medium">{lastSyncTime}</span>
+            </div>
+          )}
         </AlertDescription>
       </Alert>
 
-      <Button onClick={handleSyncWithKaspi} className="mb-6 flex gap-2">
-        <Upload className="h-4 w-4" />
-        <span>Синхронизировать с Каспи</span>
-      </Button>
+      <div className="flex gap-4 mb-6 flex-wrap">
+        <Button 
+          onClick={handleSyncWithKaspi} 
+          disabled={isSyncing}
+          className="flex gap-2"
+        >
+          {isSyncing ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Upload className="h-4 w-4" />
+          )}
+          <span>{isSyncing ? "Синхронизация..." : "Синхронизировать с Каспи"}</span>
+        </Button>
+        
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="auto-sync"
+            checked={autoSyncEnabled}
+            onCheckedChange={(checked) => {
+              syncForm.setValue("autoSync", checked);
+              onSyncSettingsSave({
+                ...syncForm.getValues(),
+                autoSync: checked
+              });
+            }}
+          />
+          <Label htmlFor="auto-sync">Автоматическая синхронизация</Label>
+        </div>
+      </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-3 mb-6">
+        <TabsList className="grid grid-cols-4 mb-6">
           <TabsTrigger value="dashboard">Обзор</TabsTrigger>
           <TabsTrigger value="products">Товары</TabsTrigger>
           <TabsTrigger value="orders">Заказы</TabsTrigger>
+          <TabsTrigger value="settings">Настройки</TabsTrigger>
         </TabsList>
         
         <TabsContent value="dashboard">
@@ -312,6 +467,96 @@ const KaspiAdminDashboard = () => {
                   </div>
                 ))}
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="settings">
+          <Card>
+            <CardHeader>
+              <CardTitle>Настройки интеграции с Каспи</CardTitle>
+              <CardDescription>Настройте параметры интеграции с Kaspi.kz</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Form {...syncForm}>
+                <form onSubmit={syncForm.handleSubmit(onSyncSettingsSave)} className="space-y-6">
+                  <FormField
+                    control={syncForm.control}
+                    name="apiKey"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>API Ключ Каспи</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Введите API ключ" {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          API ключ можно получить в личном кабинете продавца Kaspi.kz
+                        </FormDescription>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={syncForm.control}
+                    name="merchantId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>ID продавца</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Введите ID продавца" {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={syncForm.control}
+                    name="syncInterval"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Интервал синхронизации (в минутах)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            min={5} 
+                            max={1440} 
+                            {...field} 
+                            onChange={e => field.onChange(Number(e.target.value))}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Как часто будет происходить автоматическая синхронизация (от 5 минут до 24 часов)
+                        </FormDescription>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={syncForm.control}
+                    name="autoSync"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">
+                            Автоматическая синхронизация
+                          </FormLabel>
+                          <FormDescription>
+                            Автоматически синхронизировать данные с Каспи
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <Button type="submit">Сохранить настройки</Button>
+                </form>
+              </Form>
             </CardContent>
           </Card>
         </TabsContent>
