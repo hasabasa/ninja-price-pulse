@@ -13,7 +13,7 @@ import {
   SidebarTrigger,
   useSidebar
 } from "@/components/ui/sidebar";
-import { Bot, BarChart, Calculator, ListChecks, Search, Home, Menu } from "lucide-react";
+import { Menu, Bot, BarChart, Calculator, ListChecks, Search, Home } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 
