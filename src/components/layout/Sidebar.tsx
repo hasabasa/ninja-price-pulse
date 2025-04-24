@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
@@ -105,21 +106,22 @@ const Sidebar = ({ isMobile = false }: SidebarProps) => {
             variant={isActive(item.path) ? "secondary" : "ghost"}
             onClick={() => handleNavigation(item.path)}
             className={cn(
-              "w-full flex items-center justify-start px-4 py-3 text-sm rounded-lg transition-colors gap-3", // Updated to ensure left alignment
+              "w-full flex items-center justify-start px-4 py-3 text-sm rounded-lg transition-colors gap-3", 
+              "items-center", // Ensure vertical centering
               isActive(item.path)
                 ? "bg-primary/10 text-primary font-medium"
                 : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
             )}
           >
             {React.cloneElement(item.icon, { 
-              className: "h-5 w-5 flex-shrink-0" // Ensure consistent icon size and prevent shrinking
+              className: "h-5 w-5 flex-shrink-0 mx-auto" // Center icon horizontally
             })}
             {!collapsed && (
               <motion.span
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="ml-2" // Added small margin between icon and text
+                className="ml-2"
               >
                 {item.name}
               </motion.span>
@@ -201,3 +203,4 @@ const Sidebar = ({ isMobile = false }: SidebarProps) => {
 };
 
 export default Sidebar;
+
