@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -51,11 +52,15 @@ const Index = () => {
         transition={{ duration: 0.5 }}
         className="text-center mb-12"
       >
-        <h1 className="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
-          Добро пожаловать в Kaspi Price Ninja
+        <h1 className="text-4xl font-bold mb-4">
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
+            Kaspi Price Ninja
+          </span>
         </h1>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          Платформа для умного управления вашими продажами на Kaspi.kz
+        <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+          Умная платформа для управления продажами на Kaspi.kz. 
+          Оптимизируйте цены, анализируйте рынок и увеличивайте прибыль 
+          с помощью передовых инструментов аналитики и автоматизации.
         </p>
       </motion.div>
 
