@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Bot, BarChart, Calculator, ListChecks, Search, Home, Menu } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 
 const menuItems = [
   {
@@ -98,12 +99,12 @@ export function AppSidebar() {
           </SidebarGroup>
         </SidebarContent>
       </Sidebar>
-      <button
+      <Button
         onClick={toggleSidebar}
         className="fixed left-4 bottom-4 p-2 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 transition-colors md:hidden"
       >
         <Menu className="h-5 w-5" />
-      </button>
+      </Button>
     </>
   );
 }
