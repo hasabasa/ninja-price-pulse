@@ -72,23 +72,24 @@ export function AppSidebar() {
       <Sidebar variant="floating" collapsible="icon">
         <SidebarContent>
           <SidebarGroup>
-            <div className="flex items-center justify-between px-2 py-2">
-              <SidebarGroupLabel>KaspiNinja</SidebarGroupLabel>
+            <div className="flex items-center justify-between px-4 py-4">
+              <SidebarGroupLabel className="text-base font-semibold">KaspiNinja</SidebarGroupLabel>
               <SidebarTrigger className="ml-auto">
                 <Menu className="h-4 w-4" />
               </SidebarTrigger>
             </div>
             <SidebarGroupContent>
-              <SidebarMenu>
+              <SidebarMenu className="space-y-1 px-2">
                 {menuItems.map((item) => (
                   <SidebarMenuItem key={item.path}>
                     <SidebarMenuButton
                       tooltip={item.title}
                       isActive={location.pathname === item.path}
                       onClick={() => handleNavigation(item.path)}
+                      className="w-full justify-start gap-3"
                     >
-                      <item.icon className="mx-auto" />
-                      <span>{item.title}</span>
+                      <item.icon className="h-5 w-5" />
+                      <span className="font-medium">{item.title}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
@@ -100,4 +101,3 @@ export function AppSidebar() {
     </>
   );
 }
-
