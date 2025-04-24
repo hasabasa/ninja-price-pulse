@@ -13,7 +13,7 @@ import {
   SidebarTrigger,
   useSidebar
 } from "@/components/ui/sidebar";
-import { Menu, Bot, BarChart, Calculator, ListChecks, Search, Home, PanelLeft } from "lucide-react";
+import { Menu, Bot, BarChart, Calculator, ListChecks, ChartBar, Home, PanelLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 
@@ -44,9 +44,9 @@ const menuItems = [
     icon: ListChecks,
   },
   {
-    title: "Поиск ниш",
-    path: "/niche-search",
-    icon: Search,
+    title: "Аналитика товаров Kaspi",
+    path: "/kaspi-analytics",
+    icon: ChartBar,
   }
 ];
 

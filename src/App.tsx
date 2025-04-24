@@ -11,7 +11,7 @@ import PriceBot from "./pages/PriceBot";
 import Sales from "./pages/Sales";
 import UnitEconomics from "./pages/UnitEconomics";
 import CRM from "./pages/CRM";
-import NicheSearch from "./pages/NicheSearch";
+import KaspiProductAnalytics from "./pages/KaspiProductAnalytics";
 
 const queryClient = new QueryClient();
 
@@ -27,7 +27,7 @@ const App = () => (
           <Route path="/sales" element={<Layout><Sales /></Layout>} />
           <Route path="/unit-economics" element={<Layout><UnitEconomics /></Layout>} />
           <Route path="/crm" element={<Layout><CRM /></Layout>} />
-          <Route path="/niche-search" element={<Layout><NicheSearch /></Layout>} />
+          <Route path="/kaspi-analytics" element={<Layout><KaspiProductAnalytics /></Layout>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

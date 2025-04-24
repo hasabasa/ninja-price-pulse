@@ -1,8 +1,7 @@
-
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bot, Calculator, LineChart, ListChecks, Search } from "lucide-react";
+import { Bot, Calculator, LineChart, ListChecks, ChartBar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const modules = [
@@ -35,10 +34,10 @@ const modules = [
     color: "from-red-500/20 to-pink-500/20"
   },
   {
-    title: "Поиск ниш",
+    title: "Аналитика товаров Kaspi",
     description: "Анализ спроса и предложения для поиска перспективных ниш",
-    icon: <Search className="h-12 w-12 text-primary" />,
-    path: "/niche-search",
+    icon: <ChartBar className="h-12 w-12 text-primary" />,
+    path: "/kaspi-analytics",
     color: "from-indigo-500/20 to-blue-500/20"
   }
 ];
