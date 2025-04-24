@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { mockProducts, Product } from "@/data/mockData";
-import { Bot, ChevronsUpDown, TrendingDown, UserRound } from "lucide-react";
+import { Bot, ChevronsUpDown, Equal, First, TrendingDown, UserRound } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const PriceBot = () => {
@@ -168,6 +168,7 @@ const PriceBot = () => {
                     <TabsList className="mb-4">
                       <TabsTrigger value="competitors">Конкуренты</TabsTrigger>
                       <TabsTrigger value="settings">Настройки</TabsTrigger>
+                      <TabsTrigger value="strategy">Стратегия</TabsTrigger>
                     </TabsList>
                     
                     <TabsContent value="competitors" className="space-y-4">
@@ -337,6 +338,38 @@ const PriceBot = () => {
                             <Button onClick={() => saveSettings(product.id)}>Сохранить настройки</Button>
                           </div>
                         </div>
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value="strategy" className="space-y-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <Card className="cursor-pointer hover:border-primary transition-colors" 
+                              onClick={() => selectStrategy(product.id, 'equal')}
+                        >
+                          <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                              <Equal className="h-5 w-5" />
+                              Равная цена
+                            </CardTitle>
+                            <CardDescription>
+                              Установить цену равной конкуренту
+                            </CardDescription>
+                          </CardHeader>
+                        </Card>
+
+                        <Card className="cursor-pointer hover:border-primary transition-colors"
+                              onClick={() => selectStrategy(product.id, 'first')}
+                        >
+                          <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                              <First className="h-5 w-5" />
+                              Стать первым
+                            </CardTitle>
+                            <CardDescription>
+                              Установить цену ниже конкурента на минимальный шаг
+                            </CardDescription>
+                          </CardHeader>
+                        </Card>
                       </div>
                     </TabsContent>
                   </Tabs>
