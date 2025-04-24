@@ -1,8 +1,38 @@
 
 // Mock data for Kaspi Price Ninja platform
 
+// Product interface to define the shape of our product objects
+export interface Product {
+  id: number;
+  name: string;
+  sku: string;
+  cost: number;
+  sellingPrice: number;
+  category: string;
+  weight: number;
+  image: string;
+  active: boolean;
+  strategy?: string;
+  watchCompetitor?: number;
+  updateFrequency?: string;
+  limits?: {
+    minPrice?: number;
+    maxPrice?: number;
+    minProfit?: number;
+    priceStep?: number;
+  };
+  competitors: {
+    id: number;
+    name: string;
+    price: number;
+    rating: number;
+    delivery: string;
+    isOfficial: boolean;
+  }[];
+}
+
 // Mock products data for Price Bot
-export const mockProducts = [
+export const mockProducts: Product[] = [
   {
     id: 1,
     name: "Apple iPhone 15 Pro Max 256GB",
@@ -13,6 +43,15 @@ export const mockProducts = [
     weight: 0.5,
     image: "https://resources.cdn-kaspi.kz/img/m/p/h14/h50/84378448199710.jpg?format=gallery-medium",
     active: true,
+    strategy: "first",
+    watchCompetitor: 101,
+    updateFrequency: "5",
+    limits: {
+      minPrice: 550000,
+      maxPrice: 750000,
+      minProfit: 50000,
+      priceStep: 1000
+    },
     competitors: [
       {
         id: 101,
@@ -50,6 +89,15 @@ export const mockProducts = [
     weight: 0.6,
     image: "https://resources.cdn-kaspi.kz/img/m/p/h32/h70/84390173007902.jpg?format=gallery-medium",
     active: true,
+    strategy: "equal",
+    watchCompetitor: 201,
+    updateFrequency: "3",
+    limits: {
+      minPrice: 500000,
+      maxPrice: 700000,
+      minProfit: 30000,
+      priceStep: 500
+    },
     competitors: [
       {
         id: 201,
@@ -87,6 +135,15 @@ export const mockProducts = [
     weight: 1.8,
     image: "https://resources.cdn-kaspi.kz/img/m/p/hbf/h98/84577188716574.jpg?format=gallery-medium",
     active: false,
+    strategy: "custom",
+    watchCompetitor: 303,
+    updateFrequency: "4",
+    limits: {
+      minPrice: 950000,
+      maxPrice: 1300000,
+      minProfit: 100000,
+      priceStep: 5000
+    },
     competitors: [
       {
         id: 301,

@@ -10,13 +10,13 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { mockProducts } from "@/data/mockData";
+import { mockProducts, Product } from "@/data/mockData";
 import { Bot, ChevronsUpDown, TrendingDown, UserRound } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const PriceBot = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [products, setProducts] = useState(mockProducts);
+  const [products, setProducts] = useState<Product[]>(mockProducts);
   const { toast } = useToast();
   
   const filteredProducts = products.filter(product => 
@@ -47,7 +47,7 @@ const PriceBot = () => {
       product.id === productId ? { 
         ...product, 
         limits: { 
-          ...product.limits, 
+          ...product.limits || {}, 
           [limitType]: Array.isArray(value) ? value[0] : value
         } 
       } : product
