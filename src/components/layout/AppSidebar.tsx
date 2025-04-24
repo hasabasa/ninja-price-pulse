@@ -10,9 +10,10 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger
+  SidebarTrigger,
+  useSidebar
 } from "@/components/ui/sidebar";
-import { Bot, BarChart, Calculator, ListChecks, Search, Home } from "lucide-react";
+import { Bot, BarChart, Calculator, ListChecks, Search, Home, Menu } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const menuItems = [
@@ -52,6 +53,7 @@ export function AppSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { toggleSidebar } = useSidebar();
 
   const handleNavigation = (path: string) => {
     navigate(path);
@@ -72,7 +74,9 @@ export function AppSidebar() {
           <SidebarGroup>
             <div className="flex items-center justify-between px-2 py-2">
               <SidebarGroupLabel>KaspiNinja</SidebarGroupLabel>
-              <SidebarTrigger className="ml-auto" />
+              <SidebarTrigger className="ml-auto">
+                <Menu className="h-4 w-4" />
+              </SidebarTrigger>
             </div>
             <SidebarGroupContent>
               <SidebarMenu>
@@ -96,3 +100,4 @@ export function AppSidebar() {
     </>
   );
 }
+
