@@ -1,4 +1,5 @@
-import React, { useState, useRef } from "react";
+
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -6,41 +7,35 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Store, Upload, Link } from "lucide-react";
+import { Lock, Mail } from "lucide-react";
 
 const AdminPanel = () => {
-  const [storeUrl, setStoreUrl] = useState("");
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const navigate = useNavigate();
 
-  const handleConnect = (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsConnecting(true);
+    setIsLoggingIn(true);
     
-    // Validate Kaspi магазин URL
-    const isValidKaspiUrl = (url: string) => {
-      const kaspiPattern = /kaspi\.kz\/shop\//;
-      return kaspiPattern.test(url);
-    };
-
-    if (isValidKaspiUrl(storeUrl)) {
-      // Сохраняем URL магазина вместо API
-      localStorage.setItem("kaspi_store_url", storeUrl);
+    // Демонстрационная проверка (замените на реальную аутентификацию)
+    if (email && password) {
+      // Сохраняем данные для демонстрации
+      localStorage.setItem("kaspi_admin_email", email);
       localStorage.setItem("kaspi_admin_authenticated", "true");
       
-      toast.success("Магазин успешно подключен!", {
+      toast.success("Успешный вход!", {
         description: "Вы будете перенаправлены в панель управления.",
       });
       navigate("/kaspi-admin-dashboard");
     } else {
-      toast.error("Неверная ссылка на магазин", {
-        description: "Пожалуйста, введите корректную ссылку Kaspi магазина.",
+      toast.error("Ошибка входа", {
+        description: "Пожалуйста, введите email и пароль.",
       });
     }
     
-    setIsConnecting(false);
+    setIsLoggingIn(false);
   };
 
   return (
@@ -52,32 +47,49 @@ const AdminPanel = () => {
       <Card>
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold flex items-center gap-2">
-            <Store className="h-6 w-6" />
-            Подключить Kaspi магазин
+            <Lock className="h-6 w-6" />
+            Вход в систему
           </CardTitle>
           <CardDescription>
-            Введите ссылку на ваш магазин на Kaspi.kz
+            Введите ваши данные для входа
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleConnect} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="storeUrl">Ссылка на магазин</Label>
+              <Label htmlFor="email">Email</Label>
               <div className="relative">
-                <Link className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
-                  id="storeUrl"
-                  placeholder="https://kaspi.kz/shop/ваш-магазин"
+                  id="email"
+                  type="email"
+                  placeholder="ваш@email.com"
                   className="pl-10"
-                  value={storeUrl}
-                  onChange={(e) => setStoreUrl(e.target.value)}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
             </div>
             
-            <Button type="submit" className="w-full" disabled={isConnecting}>
-              {isConnecting ? "Подключение..." : "Подключить магазин"}
+            <div className="space-y-2">
+              <Label htmlFor="password">Пароль</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Введите пароль"
+                  className="pl-10"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+            
+            <Button type="submit" className="w-full" disabled={isLoggingIn}>
+              {isLoggingIn ? "Вход..." : "Войти"}
             </Button>
           </form>
         </CardContent>
