@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -68,7 +67,7 @@ const categorySummary = Array.from(new Set(productAnalyticsData.map(item => item
 
 const KaspiProductAnalytics = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [reviewRange, setReviewRange] = useState<[number, number]>([0, 1000]);
   const [sellerRange, setSellerRange] = useState<[number, number]>([0, 50]);
   const [salesRange, setSalesRange] = useState<[number, number]>([0, 10000]);
@@ -89,8 +88,8 @@ const KaspiProductAnalytics = () => {
         return false;
       }
       
-      // Apply category filter
-      if (selectedCategory && item.category !== selectedCategory) {
+      // Apply category filter - using "all" instead of empty string
+      if (selectedCategory !== "all" && item.category !== selectedCategory) {
         return false;
       }
       
@@ -183,7 +182,7 @@ const KaspiProductAnalytics = () => {
   // Reset all filters
   const resetFilters = () => {
     setSearchTerm("");
-    setSelectedCategory("");
+    setSelectedCategory("all"); // Changed from empty string to "all"
     setReviewRange([0, 1000]);
     setSellerRange([0, 50]);
     setSalesRange([0, 10000]);
@@ -275,7 +274,7 @@ const KaspiProductAnalytics = () => {
                         <SelectValue placeholder="Выберите категорию" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Все категории</SelectItem>
+                        <SelectItem value="all">Все категории</SelectItem>
                         {categories.map(category => (
                           <SelectItem key={category} value={category}>{category}</SelectItem>
                         ))}
