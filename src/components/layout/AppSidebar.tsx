@@ -13,7 +13,7 @@ import {
   SidebarTrigger,
   useSidebar
 } from "@/components/ui/sidebar";
-import { Menu, Bot, BarChart, Calculator, ListChecks, Search, Home } from "lucide-react";
+import { Menu, Bot, BarChart, Calculator, ListChecks, Search, Home, PanelLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 
@@ -99,6 +99,18 @@ export function AppSidebar() {
           </SidebarGroup>
         </SidebarContent>
       </Sidebar>
+      
+      {/* Desktop sidebar toggle button */}
+      <Button
+        onClick={toggleSidebar}
+        variant="ghost"
+        size="icon"
+        className="fixed left-4 bottom-4 hidden md:flex p-2 bg-primary/10 text-primary rounded-full shadow-lg hover:bg-primary/20 transition-colors"
+      >
+        <PanelLeft className="h-5 w-5" />
+      </Button>
+
+      {/* Mobile sidebar toggle button */}
       <Button
         onClick={toggleSidebar}
         className="fixed left-4 bottom-4 p-2 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 transition-colors md:hidden"
