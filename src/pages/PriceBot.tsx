@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { mockProducts, Product } from "@/data/mockData";
-import { Bot, ChevronsUpDown, Equal, First, TrendingDown, UserRound } from "lucide-react";
+import { Bot, ChevronsUpDown, Equal, TrendingDown, UserRound, ChevronFirst } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const PriceBot = () => {
@@ -362,7 +362,7 @@ const PriceBot = () => {
                         >
                           <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                              <First className="h-5 w-5" />
+                              <ChevronFirst className="h-5 w-5" />
                               Стать первым
                             </CardTitle>
                             <CardDescription>
