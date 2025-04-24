@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
@@ -13,7 +12,7 @@ import {
   SidebarTrigger,
   useSidebar
 } from "@/components/ui/sidebar";
-import { Menu, Bot, BarChart, Calculator, ListChecks, ChartBar, Home, PanelLeft, Lock } from "lucide-react";
+import { Menu, Bot, BarChart, Calculator, ListChecks, ChartBar, Home, PanelLeft, Store } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 
@@ -49,9 +48,9 @@ const menuItems = [
     icon: ChartBar,
   },
   {
-    title: "Вход для администратора",
+    title: "Подключить магазин",
     path: "/admin",
-    icon: Lock,
+    icon: Store,
   }
 ];
 
