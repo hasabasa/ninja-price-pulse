@@ -13,7 +13,7 @@ import {
   SidebarTrigger,
   useSidebar
 } from "@/components/ui/sidebar";
-import { Menu, Bot, BarChart, Calculator, ListChecks, ChartBar, Home, PanelLeft } from "lucide-react";
+import { Menu, Bot, BarChart, Calculator, ListChecks, ChartBar, Home, PanelLeft, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 
@@ -47,6 +47,11 @@ const menuItems = [
     title: "Аналитика товаров Kaspi",
     path: "/kaspi-analytics",
     icon: ChartBar,
+  },
+  {
+    title: "Вход для администратора",
+    path: "/admin",
+    icon: Lock,
   }
 ];
 

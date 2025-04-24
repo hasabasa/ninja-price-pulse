@@ -12,6 +12,8 @@ import Sales from "./pages/Sales";
 import UnitEconomics from "./pages/UnitEconomics";
 import CRM from "./pages/CRM";
 import KaspiProductAnalytics from "./pages/KaspiProductAnalytics";
+import AdminPanel from "./pages/AdminPanel";
+import KaspiAdminDashboard from "./pages/KaspiAdminDashboard";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +30,8 @@ const App = () => (
           <Route path="/unit-economics" element={<Layout><UnitEconomics /></Layout>} />
           <Route path="/crm" element={<Layout><CRM /></Layout>} />
           <Route path="/kaspi-analytics" element={<Layout><KaspiProductAnalytics /></Layout>} />
+          <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/kaspi-admin-dashboard" element={<Layout><KaspiAdminDashboard /></Layout>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
