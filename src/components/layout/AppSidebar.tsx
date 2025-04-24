@@ -86,7 +86,7 @@ export function AppSidebar() {
                       tooltip={item.title}
                       isActive={location.pathname === item.path}
                       onClick={() => handleNavigation(item.path)}
-                      className="w-full justify-start gap-3"
+                      className="w-full justify-start gap-3 group-data-[collapsible=icon]:justify-center"
                     >
                       <item.icon className="h-5 w-5" />
                       <span className="font-medium">{item.title}</span>
@@ -98,6 +98,12 @@ export function AppSidebar() {
           </SidebarGroup>
         </SidebarContent>
       </Sidebar>
+      <button
+        onClick={toggleSidebar}
+        className="fixed left-4 bottom-4 p-2 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 transition-colors md:hidden"
+      >
+        <Menu className="h-5 w-5" />
+      </button>
     </>
   );
 }
