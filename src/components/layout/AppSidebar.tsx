@@ -10,6 +10,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger
 } from "@/components/ui/sidebar";
 import { Bot, BarChart, Calculator, ListChecks, Search, Home } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -65,28 +66,33 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>KaspiNinja</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.path}>
-                  <SidebarMenuButton
-                    tooltip={item.title}
-                    isActive={location.pathname === item.path}
-                    onClick={() => handleNavigation(item.path)}
-                  >
-                    <item.icon />
-                    <span>{item.title}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-    </Sidebar>
+    <>
+      <Sidebar variant="floating" collapsible="icon">
+        <SidebarContent>
+          <SidebarGroup>
+            <div className="flex items-center justify-between px-2 py-2">
+              <SidebarGroupLabel>KaspiNinja</SidebarGroupLabel>
+              <SidebarTrigger className="ml-auto" />
+            </div>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {menuItems.map((item) => (
+                  <SidebarMenuItem key={item.path}>
+                    <SidebarMenuButton
+                      tooltip={item.title}
+                      isActive={location.pathname === item.path}
+                      onClick={() => handleNavigation(item.path)}
+                    >
+                      <item.icon className="mx-auto" />
+                      <span>{item.title}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+      </Sidebar>
+    </>
   );
 }
