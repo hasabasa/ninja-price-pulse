@@ -10,8 +10,7 @@ import { toast } from "sonner";
 import { Store, Link } from "lucide-react";
 
 const AdminPanel = () => {
-  const [merchantId, setMerchantId] = useState("");
-  const [apiKey, setApiKey] = useState("");
+  const [storeUrl, setStoreUrl] = useState("");
   const [isConnecting, setIsConnecting] = useState(false);
   const navigate = useNavigate();
 
@@ -19,26 +18,28 @@ const AdminPanel = () => {
     e.preventDefault();
     setIsConnecting(true);
     
-    // Simulate API connection request
-    setTimeout(() => {
-      // In a real application, validate the merchant ID and API key with Kaspi's API
-      if (merchantId && apiKey) {
-        // Store connection details in localStorage
-        localStorage.setItem("kaspi_merchant_id", merchantId);
-        localStorage.setItem("kaspi_api_key", apiKey);
-        localStorage.setItem("kaspi_admin_authenticated", "true");
-        
-        toast.success("Магазин успешно подключен!", {
-          description: "Вы будете перенаправлены в панель управления.",
-        });
-        navigate("/kaspi-admin-dashboard");
-      } else {
-        toast.error("Ошибка подключения", {
-          description: "Пожалуйста, проверьте введенные данные.",
-        });
-      }
-      setIsConnecting(false);
-    }, 1000);
+    // Validate Kaspi магазин URL
+    const isValidKaspiUrl = (url: string) => {
+      const kaspiPattern = /kaspi\.kz\/shop\//;
+      return kaspiPattern.test(url);
+    };
+
+    if (isValidKaspiUrl(storeUrl)) {
+      // Сохраняем URL магазина вместо API
+      localStorage.setItem("kaspi_store_url", storeUrl);
+      localStorage.setItem("kaspi_admin_authenticated", "true");
+      
+      toast.success("Магазин успешно подключен!", {
+        description: "Вы будете перенаправлены в панель управления.",
+      });
+      navigate("/kaspi-admin-dashboard");
+    } else {
+      toast.error("Неверная ссылка на магазин", {
+        description: "Пожалуйста, введите корректную ссылку Kaspi магазина.",
+      });
+    }
+    
+    setIsConnecting(false);
   };
 
   return (
@@ -54,37 +55,21 @@ const AdminPanel = () => {
             Подключить Kaspi магазин
           </CardTitle>
           <CardDescription>
-            Введите данные вашего магазина на Kaspi.kz для подключения к системе
+            Введите ссылку на ваш магазин на Kaspi.kz
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleConnect} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="merchantId">ID Продавца</Label>
-              <div className="relative">
-                <Store className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="merchantId"
-                  placeholder="Введите ID продавца"
-                  className="pl-10"
-                  value={merchantId}
-                  onChange={(e) => setMerchantId(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="apiKey">API Ключ</Label>
+              <Label htmlFor="storeUrl">Ссылка на магазин</Label>
               <div className="relative">
                 <Link className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
-                  id="apiKey"
-                  type="password"
-                  placeholder="Введите API ключ"
+                  id="storeUrl"
+                  placeholder="https://kaspi.kz/shop/ваш-магазин"
                   className="pl-10"
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
+                  value={storeUrl}
+                  onChange={(e) => setStoreUrl(e.target.value)}
                   required
                 />
               </div>
@@ -95,7 +80,7 @@ const AdminPanel = () => {
             </Button>
             
             <div className="text-center text-sm text-muted-foreground mt-2">
-              <p>Для получения данных перейдите в</p>
+              <p>Найдите ссылку на ваш магазин в</p>
               <p>
                 <a 
                   href="https://kaspi.kz/merchantcabinet" 
@@ -103,7 +88,7 @@ const AdminPanel = () => {
                   rel="noopener noreferrer" 
                   className="text-primary hover:underline"
                 >
-                  Личный кабинет продавца Kaspi
+                  Личном кабинете продавца Kaspi
                 </a>
               </p>
             </div>
@@ -115,3 +100,4 @@ const AdminPanel = () => {
 };
 
 export default AdminPanel;
+
