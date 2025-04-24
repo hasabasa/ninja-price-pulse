@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -143,10 +142,10 @@ const PriceBot = () => {
                           <span className="text-gray-500">Категория:</span> {product.category}
                         </div>
                         <div>
-                          <span className="text-gray-500">Себестоимость:</span> {product.cost.toLocaleString()} ₸
+                          <span className="text-gray-500">Себестоимость:</span> {product.cost.toLocaleString()} ₸ 
                         </div>
                         <div>
-                          <span className="text-gray-500">Текущая цена:</span> {product.sellingPrice.toLocaleString()} ₸
+                          <span className="text-gray-500">Текущая цена:</span> {product.sellingPrice.toLocaleString()} ₸ 
                         </div>
                       </div>
                     </div>
@@ -168,7 +167,6 @@ const PriceBot = () => {
                   <Tabs defaultValue="competitors" className="w-full">
                     <TabsList className="mb-4">
                       <TabsTrigger value="competitors">Конкуренты</TabsTrigger>
-                      <TabsTrigger value="strategy">Стратегия</TabsTrigger>
                       <TabsTrigger value="settings">Настройки</TabsTrigger>
                     </TabsList>
                     
@@ -203,7 +201,7 @@ const PriceBot = () => {
                                   {competitor.price < product.sellingPrice ? (
                                     <Badge variant="destructive" className="flex items-center">
                                       <TrendingDown className="h-3 w-3 mr-1" />
-                                      Ниже на {(product.sellingPrice - competitor.price).toLocaleString()} ₸
+                                      Ниже на {(product.sellingPrice - competitor.price).toLocaleString()} ₸ 
                                     </Badge>
                                   ) : competitor.price > product.sellingPrice ? (
                                     <Badge variant="outline" className="bg-green-100 text-green-800 hover:bg-green-200 flex items-center">
@@ -224,41 +222,8 @@ const PriceBot = () => {
                       </div>
                     </TabsContent>
                     
-                    <TabsContent value="strategy">
+                    <TabsContent value="settings">
                       <div className="space-y-6">
-                        <div className="space-y-2">
-                          <h3 className="text-lg font-medium">Выберите стратегию</h3>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <Card 
-                              className={`cursor-pointer ${product.strategy === 'first' ? 'border-primary' : 'border-border'} hover:border-primary/80 transition-all`}
-                              onClick={() => selectStrategy(product.id, 'first')}
-                            >
-                              <CardHeader>
-                                <CardTitle className="text-base">🥇 Стань первым</CardTitle>
-                                <CardDescription>Цена на 1 тг дешевле, чем у ближайшего конкурента</CardDescription>
-                              </CardHeader>
-                            </Card>
-                            <Card 
-                              className={`cursor-pointer ${product.strategy === 'equal' ? 'border-primary' : 'border-border'} hover:border-primary/80 transition-all`}
-                              onClick={() => selectStrategy(product.id, 'equal')}
-                            >
-                              <CardHeader>
-                                <CardTitle className="text-base">⚖️ Равная цена</CardTitle>
-                                <CardDescription>Держать цену наравне с выбранным конкурентом</CardDescription>
-                              </CardHeader>
-                            </Card>
-                            <Card 
-                              className={`cursor-pointer ${product.strategy === 'custom' ? 'border-primary' : 'border-border'} hover:border-primary/80 transition-all`}
-                              onClick={() => selectStrategy(product.id, 'custom')}
-                            >
-                              <CardHeader>
-                                <CardTitle className="text-base">💰 Своя стратегия</CardTitle>
-                                <CardDescription>Настроить пользовательское правило</CardDescription>
-                              </CardHeader>
-                            </Card>
-                          </div>
-                        </div>
-                        
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div className="space-y-2">
                             <h3 className="text-lg font-medium">Наблюдать за продавцом</h3>
@@ -269,7 +234,7 @@ const PriceBot = () => {
                               <SelectContent>
                                 {product.competitors.map(competitor => (
                                   <SelectItem key={competitor.id} value={competitor.id.toString()}>
-                                    {competitor.name} - {competitor.price.toLocaleString()} ₸
+                                    {competitor.name} - {competitor.price.toLocaleString()} ₸ 
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -292,11 +257,7 @@ const PriceBot = () => {
                             </Select>
                           </div>
                         </div>
-                      </div>
-                    </TabsContent>
-                    
-                    <TabsContent value="settings">
-                      <div className="space-y-6">
+                        
                         <div className="space-y-4">
                           <div>
                             <h3 className="text-lg font-medium mb-4">Ограничения</h3>
