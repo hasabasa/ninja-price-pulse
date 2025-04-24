@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -44,38 +43,6 @@ const AdminPanel = () => {
     setIsConnecting(false);
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file && file.name.endsWith('.js')) {
-      setSelectedFile(file);
-      toast.success("Скрипт успешно выбран");
-    } else {
-      toast.error("Пожалуйста, выберите JavaScript файл (.js)");
-    }
-  };
-
-  const handleUploadScript = async () => {
-    if (!selectedFile) {
-      toast.error("Пожалуйста, выберите файл скрипта");
-      return;
-    }
-
-    try {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const content = e.target?.result as string;
-        // Сохраняем скрипт в localStorage для демонстрации
-        localStorage.setItem('parser_script', content);
-        toast.success("Парсер успешно загружен!", {
-          description: "Теперь вы можете использовать его для анализа магазина.",
-        });
-      };
-      reader.readAsText(selectedFile);
-    } catch (error) {
-      toast.error("Ошибка при загрузке скрипта");
-    }
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -113,41 +80,6 @@ const AdminPanel = () => {
               {isConnecting ? "Подключение..." : "Подключить магазин"}
             </Button>
           </form>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold flex items-center gap-2">
-            <Upload className="h-6 w-6" />
-            Загрузить парсер
-          </CardTitle>
-          <CardDescription>
-            Загрузите ваш скрипт парсера для анализа магазина
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="script">Файл скрипта (.js)</Label>
-              <Input
-                id="script"
-                type="file"
-                accept=".js"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                className="cursor-pointer"
-              />
-            </div>
-            
-            <Button 
-              onClick={handleUploadScript}
-              className="w-full"
-              disabled={!selectedFile}
-            >
-              Загрузить скрипт
-            </Button>
-          </div>
         </CardContent>
       </Card>
     </motion.div>
